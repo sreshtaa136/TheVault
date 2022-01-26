@@ -12,6 +12,7 @@ class Account:
 
         security_obj = Security.Security()
         security_obj.save_password(password)
+        security_obj.lock_file("Vault.txt")
     
 
     def verify_username(self, username):

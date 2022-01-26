@@ -53,6 +53,8 @@ class Security:
         encrypted_file = name + ".encrypted"
         with open(encrypted_file, "wb") as f:
             f.write(encrypted_data)
+        with open(file_name, "wb") as f:
+            f.truncate(0)
         os.remove(file_name)
 
 
@@ -74,6 +76,8 @@ class Security:
             decrypted_file = file_name[0:n] + ".txt"
             with open(decrypted_file, "wb") as f:
                 f.write(decrypted_data)
+            with open(file_name, "wb") as f:
+                f.truncate(0)
             os.remove(file_name)
 
 
@@ -110,3 +114,50 @@ class Security:
             return True
         else:
             return False
+
+    def make_entry(self, file_name, entry):
+
+        self.unlock_file(file_name)
+        with open("Vault.txt", "r") as f:
+            contents = f.readlines()
+
+        if("\n" in contents[len(contents)-1]):
+            contents.append(entry + "\n")
+        else:   
+            contents.append("\n" + entry + "\n")   
+
+        with open("Vault.txt", "w") as f:
+            contents = "".join(contents)
+            f.write(contents)  
+        self.lock_file("Vault.txt")
+    
+
+    def count_entries(self, file_name):
+        
+        count = 0
+        with open("key.key", "rb") as f:
+            en_pwd = f.read()
+        pwd = self.decrypt_password(en_pwd)
+        key = self.generate_key(pwd)
+        data_bytes = self.decrypt_file(key, file_name)
+        data = data_bytes.decode('UTF-8')  
+        data = data.splitlines()
+
+        for entry in data:
+            if (entry != ""):
+                if (entry[0] == "*"):
+                    count += 1
+        return count
+        
+
+    def print_data(self, file_name):
+
+        with open("key.key", "rb") as f:
+            en_pwd = f.read()
+        pwd = self.decrypt_password(en_pwd)
+        key = self.generate_key(pwd)
+        data_bytes = self.decrypt_file(key, file_name)
+        data = data_bytes.decode('UTF-8') 
+        print("\n---------------------------------------------------------------------") 
+        print(data)
+        print("\n---------------------------------------------------------------------")
