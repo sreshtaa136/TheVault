@@ -3,11 +3,9 @@ import Security
 import Account
 import sys, time
 from os import system, name
+from stdiomask import getpass
 
 class Menu:
-
-    # TO DO:
-    # MASK PASSWORD
     
     def print_text(self, text):
         for char in text:
@@ -29,17 +27,65 @@ class Menu:
             print("\n Exiting appliation...\n")
             exit(1)
 
+
     def clear_screen(self):
         # for windows
         if name == 'nt':
             _ = system('cls')
-    
         # for mac and linux(here, os.name is 'posix')
         else:
             _ = system('clear')
-    
-    def make_entry(self):
 
+
+    def create_account(self):
+        account_obj = Account.Account()
+        print("\nHello there! What would you like me to call you?")
+        username = input("Please enter a username >> ")
+        self.exit_check(username)              
+        print("\nHello " + username + "! You will now create a secure password for your vault.")
+        print("This password cannot be changed, and without it, you will lose all your data.")
+        print("Hence, make sure you remember it.")
+        password = getpass(prompt = "Please enter a secure password here >> ", mask = "*")
+        self.exit_check(password)   
+        password_double = getpass(prompt = "Please re-enter your password to confirm >> ", mask = "*")
+        self.exit_check(password_double)   
+
+        while (password != password_double):
+            print("Oops! The passwords didn't match! Try again!")
+            password_double = getpass(prompt = "Please re-enter your password to confirm >> ", mask = "*")
+            self.exit_check(password_double)   
+
+        account_obj.create_account(username, password)
+        print("\nYour account has been created successfully. You will now be able to make entries in your vault.")
+
+    
+    def user_login(self):
+        account_obj = Account.Account()
+        security_obj = Security.Security()
+        username = input("Please enter your username >> ")
+        self.exit_check(username)  
+        while (account_obj.verify_username(username) == False):
+            print("Invalid username! Please enter a valid username!\n")
+            username = input("Please enter your username >> ")
+            self.exit_check(username)  
+        
+        # password = input("Please enter your password >> ")
+        password = getpass(prompt = "Please enter your password >> ", mask = "*")
+        self.exit_check(password)  
+        count = 0
+
+        while(security_obj.verify_password(password) == False):
+            print("Invalid password! Number of attempts left: " + str(5 - count) + "\n")
+            password = getpass(prompt = "Please enter your password >> ", mask = "*")
+            self.exit_check(password)
+            count += 1
+            if(count == 5):
+                print("\n No more attempts left. Exiting appliation...\n")
+                exit(1)
+        print("\nWelcome back " + username + "!")
+
+
+    def make_entry(self):
         security_obj = Security.Security()
         print("\nEach entry consists of:")
         print("1. The source (the application, website, card, or any type of source the password belongs to)")
@@ -69,14 +115,15 @@ class Menu:
                 self.exit_check(confirmation)
         
         if (confirmation.upper() == "Y"):
-            password = input("\nEnter your password for '" + source + "' >> ")
+            p = "\nEnter your password for '" + source + "' >> "
+            password = getpass(prompt = p, mask = "*")
             self.exit_check(password)   
-            password_double = input("Please re-enter the password to confirm >> ")
+            password_double = getpass(prompt = "Please re-enter your password to confirm >> ", mask = "*")
             self.exit_check(password_double)   
 
             while (password != password_double):
                 print("\nOops! The passwords didn't match! Try again!")
-                password_double = input("Please re-enter your password to confirm >> ")
+                password_double = getpass(prompt = "Please re-enter your password to confirm >> ", mask = "*")
                 self.exit_check(password_double)  
 
         entry = "* " + source + " : " + password
@@ -84,8 +131,6 @@ class Menu:
     
 
     def print_menu(self):
-
-        account_obj = Account.Account()
         security_obj = Security.Security()
         print("\nWelcome to The Vault. You can type 'logout' any time you want to exit the application. \nAre you a ...")
         print("1. New User")
@@ -101,49 +146,9 @@ class Menu:
             self.exit_check(user_type)
                 
         if(user_type == "1"):
-            print("\nHello there! What would you like me to call you?")
-            username = input("Please enter a username >> ")
-            self.exit_check(username)              
-            print("\nHello " + username + "! You will now create a secure password for your vault.")
-            print("This password cannot be changed, and without it, you will lose all your data.")
-            print("Hence, make sure you remember it.")
-            password = input("Please enter a secure password here >> ")
-            self.exit_check(password)   
-            password_double = input("Please re-enter your password to confirm >> ")
-            self.exit_check(password_double)   
-
-            while (password != password_double):
-                print("Oops! The passwords didn't match! Try again!")
-                password_double = input("Please re-enter your password to confirm >> ")
-                self.exit_check(password_double)   
-
-            account_obj.create_account(username, password)
-            print("\nYour account has been created successfully. You will now be able to make entries in your vault.")
-            
-
+            self.create_account()
         elif(user_type == "2"):
-            username = input("Please enter your username >> ")
-            self.exit_check(username)  
-            while (account_obj.verify_username(username) == False):
-                print("Invalid username! Please enter a valid username!\n")
-                username = input("Please enter your username >> ")
-                self.exit_check(username)  
-            
-            password = input("Please enter your password >> ")
-            self.exit_check(password)  
-            count = 0
-
-            while(security_obj.verify_password(password) == False):
-                print("Invalid password! Number of attempts left: " + str(5 - count) + "\n")
-                password = input("Please enter your password >> ")
-                self.exit_check(password)
-                count += 1
-                if(count == 5):
-                    print("\n No more attempts left. Exiting appliation...\n")
-                    exit(1)
-
-            # security_obj.unlock_file("Vault.encrypted")
-            print("\nWelcome back " + username + "!")
+            self.user_login()
             
         while(True):
             
