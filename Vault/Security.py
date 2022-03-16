@@ -1,4 +1,3 @@
-#!/usr/local/bin/python3
 import os
 import base64
 from cryptography.hazmat.backends import default_backend
@@ -207,9 +206,6 @@ class Security:
             before_pwd = contents[index][0:pwd_index]
             new_pwd = new_password
             if(index != (len(contents)-1)):
-                # old_pwd = contents[index][pwd_index: (len(contents[index])-2)]
-                # before_pwd = contents[index][0:pwd_index]
-                # after_pwd = contents[index][(pwd_index + len(new_password)):]
                 after_pwd = "\n"
                 contents[index] = before_pwd + new_pwd + after_pwd
             else:

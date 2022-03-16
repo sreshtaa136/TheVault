@@ -1,18 +1,9 @@
-#!/usr/local/bin/python3
 import Security
 import Account
-import sys, time
 from os import system, name
 from stdiomask import getpass
 
 class Menu:
-    
-    def print_text(self, text):
-        for char in text:
-            sys.stdout.write(char)
-            sys.stdout.flush()
-            time.sleep(0.09)
-
 
     def exit_check(self, input):
         if(input == "logout"):
