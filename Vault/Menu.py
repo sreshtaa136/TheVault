@@ -69,7 +69,6 @@ class Menu:
             username = input("Please enter your username >> ")
             self.exit_check(username)  
         
-        # password = input("Please enter your password >> ")
         password = getpass(prompt = "Please enter your password >> ", mask = "*")
         self.exit_check(password)  
         count = 0
@@ -93,12 +92,12 @@ class Menu:
         source = input("\nEnter a source >> ")
         self.exit_check(source)
         print("Your source is: " + source + ". Correct?")
-        confirmation = input("Enter 'Y' for Yes, 'N' for No >> ")
+        confirmation = input("Enter 'y' for Yes, 'n' for No >> ")
         self.exit_check(confirmation)
 
         while(confirmation.upper() != "Y" and confirmation.upper() != "N"):
             print("\nInvalid entry! Please enter a valid option!\n")
-            confirmation = input("Enter 'Y' for Yes, 'N' for No >> ")
+            confirmation = input("Enter 'y' for Yes, 'n' for No >> ")
             self.exit_check(confirmation)
 
         if (confirmation.upper() == "N"):
@@ -106,13 +105,13 @@ class Menu:
                 source = input("Enter a source >> ")
                 self.exit_check(source)
                 print("Your source is '" + source + "'. Correct?")
-                confirmation = input("Enter 'Y' for Yes, 'N' for No >> ")
+                confirmation = input("Enter 'y' for Yes, 'n' for No >> ")
                 self.exit_check(confirmation)
 
-            while(confirmation.upper() != "Y" and confirmation.upper() != "N"):
-                print("\nInvalid entry! Please enter a valid option!\n")
-                confirmation = input("Enter 'Y' for Yes, 'N' for No >> ")
-                self.exit_check(confirmation)
+                while(confirmation.upper() != "Y" and confirmation.upper() != "N"):
+                    print("\nInvalid entry! Please enter a valid option!\n")
+                    confirmation = input("Enter 'y' for Yes, 'n' for No >> ")
+                    self.exit_check(confirmation)
         
         if (confirmation.upper() == "Y"):
             p = "\nEnter your password for '" + source + "' >> "
@@ -128,7 +127,171 @@ class Menu:
 
         entry = "* " + source + " : " + password
         security_obj.make_entry("Vault.encrypted", entry)
+
     
+    def print_passwords(self):
+        security_obj = Security.Security()
+        security_obj.print_data("Vault.encrypted")
+        print("Note: The console will be cleared when you enter 'done'")
+        x = input("Enter 'done' when ready >> ")
+        self.exit_check(x)
+        if(x == "done"):
+            self.clear_screen()
+        else:
+            while(x != "done"):
+                self.exit_check(x)
+                print("Invalid input! Valid inputs are: done, logout")
+                x = input("Enter 'done' when ready >> ")
+            self.clear_screen()
+
+
+    def edit_source(self):
+
+        security_obj = Security.Security()
+        src = input("Enter the name of the source you want to edit >> ")
+        self.exit_check(src)
+        check = security_obj.check_source("Vault.encrypted", src)
+
+        while(check == -1):
+            print("Invalid source! Please enter a valid source!\n")
+            src = input("Enter the name of the source you want to edit >> ")
+            self.exit_check(src)
+            check = security_obj.check_source("Vault.encrypted", src)
+        
+        new_src = input("Enter the name of the new source to replace '" + src + "' >> ")
+        self.exit_check(new_src)
+
+        print("Your new source is '" + new_src + "', correct?")
+        confirmation = input("Enter 'y' for Yes, 'n' for No >> ")
+        self.exit_check(confirmation)
+
+        while(confirmation.upper() != "Y" and confirmation.upper() != "N"):
+            print("\nInvalid entry! Please enter a valid option!\n")
+            confirmation = input("Enter 'y' for Yes, 'n' for No >> ")
+            self.exit_check(confirmation)
+
+        if (confirmation.upper() == "N"):
+            while (confirmation.upper() == "N"):
+                new_src = input("Enter the name of the new source to replace '" + src + "' >> ")
+                self.exit_check(new_src)
+                print("Your new source is '" + new_src + "', correct?")
+                confirmation = input("Enter 'y' for Yes, 'n' for No >> ")
+                self.exit_check(confirmation)
+
+                while(confirmation.upper() != "Y" and confirmation.upper() != "N"):
+                    print("\nInvalid entry! Please enter a valid option!\n")
+                    confirmation = input("Enter 'y' for Yes, 'n' for No >> ")
+                    self.exit_check(confirmation)             
+        
+        if (confirmation.upper() == "Y"):
+            security_obj.edit_source("Vault.encrypted", src, new_src)
+            print("Successfully changed the source '" + src + "' to '" + new_src + "'.")
+            return new_src
+
+    
+    def edit_password(self, source):
+
+        security_obj = Security.Security()
+        password = getpass(prompt = "Enter a new password for '" + source + "' >> ", mask = "*")
+        self.exit_check(password)   
+        password_double = getpass(prompt = "Please re-enter your password to confirm >> ", mask = "*")
+        self.exit_check(password_double)   
+
+        while (password != password_double):
+            print("Oops! The passwords didn't match! Try again!")
+            password_double = getpass(prompt = "Please re-enter your password to confirm >> ", mask = "*")
+            self.exit_check(password_double)  
+        
+        security_obj.edit_password("Vault.encrypted", source, password)
+        print("Successfully changed the password entry for '" + source + "'.")
+
+
+    def edit_entry(self):
+        
+        print("\nEach entry consists of:")
+        print("1. The source (the application, website, card, or any type of source the password belongs to)")
+        print("2. The key (your password for the source)\nYou can type 'logout' any time you want to exit the application.")
+        print("Do you want to change the source or the password of the entry?")
+        option = input("Enter 's' for source & 'p' for password >> ")
+        self.exit_check(option)
+
+        while(option != "s" and option != "p"):
+            print("Invalid entry! Please enter a valid option!\n")
+            print("Do you want to change the source or the password of the entry?")
+            option = input("Enter 's' for source & 'p' for password >> ")
+            self.exit_check(option)
+
+        if(option == "s"):
+            new_src = self.edit_source()
+            print("Would you like to edit the password too?")
+            confirmation = input("Enter 'y' for Yes, 'n' for No >> ")
+            self.exit_check(confirmation)
+
+            while(confirmation.upper() != "Y" and confirmation.upper() != "N"):
+                print("\nInvalid entry! Please enter a valid option!\n")
+                confirmation = input("Enter 'y' for Yes, 'n' for No >> ")
+                self.exit_check(confirmation)
+
+            if (confirmation.upper() == "N"):
+                pass                      
+            if (confirmation.upper() == "Y"):
+                self.edit_password(new_src)
+        
+        elif(option == "p"):
+
+            security_obj = Security.Security()
+            src = input("Enter the name of the source whose password you want to edit >> ")
+            self.exit_check(src)
+            check = security_obj.check_source("Vault.encrypted", src)
+
+            while(check == -1):
+                print("Invalid source! Please enter a valid source!\n")
+                src = input("Enter the name of the source you want to edit >> ")
+                self.exit_check(src)
+                check = security_obj.check_source("Vault.encrypted", src)
+
+            self.edit_password(src)
+        
+    
+    def delete_entry(self):
+
+        security_obj = Security.Security()
+        src = input("\nEnter the source of the entry you want to delete >> ")
+        self.exit_check(src)
+        check = security_obj.check_source("Vault.encrypted", src)
+
+        while(check == -1):
+            print("Invalid source! Please enter a valid source!\n")
+            src = input("Enter the source of the entry you want to delete >> ")
+            self.exit_check(src)
+            check = security_obj.check_source("Vault.encrypted", src)
+
+        print("You want to delete the entry for '" + src + "', correct?")
+        confirmation = input("Enter 'y' for Yes, 'n' for No >> ")
+        self.exit_check(confirmation)
+
+        while(confirmation.upper() != "Y" and confirmation.upper() != "N"):
+            print("\nInvalid entry! Please enter a valid option!\n")
+            confirmation = input("Enter 'y' for Yes, 'n' for No >> ")
+            self.exit_check(confirmation)
+
+        if (confirmation.upper() == "N"):
+            while (confirmation.upper() == "N"):
+                src = input("Enter the source of the entry you want to delete >> ")
+                self.exit_check(src)
+                print("You want to delete the entry for '" + src + "', correct?")
+                confirmation = input("Enter 'y' for Yes, 'n' for No >> ")
+                self.exit_check(confirmation)
+
+                while(confirmation.upper() != "Y" and confirmation.upper() != "N"):
+                    print("\nInvalid entry! Please enter a valid option!\n")
+                    confirmation = input("Enter 'y' for Yes, 'n' for No >> ")
+                    self.exit_check(confirmation)             
+        
+        if (confirmation.upper() == "Y"):
+            security_obj.delete_entry("Vault.encrypted", src)
+            print("Successfully deleted the entry for '" + src + "'.")
+
 
     def print_menu(self):
         security_obj = Security.Security()
@@ -156,35 +319,33 @@ class Menu:
             print("\n---------------------------------------------------------------------")
             print("Your current number of password entries: " + count)
             print("1.Make a new entry")
-            print("2.View passwords")
-            print("3.Exit")
+            print("2.Edit an entry")
+            print("3.Delete an entry")
+            print("4.View passwords")
+            print("5.Exit")
             print("\n---------------------------------------------------------------------")
             option = input("Please enter an option to proceed >> ")
             self.exit_check(option)
-            while(option != "1" and option != "2" and option != "3"):
+            
+            while(option != "1" and option != "2" and option != "3"
+                and option != "4" and option != "5"):
+
                 print("Invalid entry! Please enter a valid option!\n")
                 print("1.Make a new entry")
-                print("2.View passwords")
-                print("3.Exit")
+                print("2.Edit an entry")
+                print("3.Delete an entry")
+                print("4.View passwords")
+                print("5.Exit")
                 option = input("Enter a valid option to proceed >> ")
                 self.exit_check(option)
 
             if (option == "1"):
                 self.make_entry()
             elif(option == "2"):
-                security_obj.print_data("Vault.encrypted")
-                print("Note: The console will be cleared when you enter 'done'")
-                x = input("Enter 'done' when ready >> ")
-                self.exit_check(x)
-                if(x == "done"):
-                    self.clear_screen()
-                else:
-                    while(x != "done"):
-                        self.exit_check(x)
-                        print("Invalid input! Valid inputs are: done, logout")
-                        x = input("Enter 'done' when ready >> ")
-                    self.clear_screen()
-            elif (option == "3"):
+                self.edit_entry()
+            elif(option == "3"):
+                self.delete_entry()
+            elif(option == "4"):
+                self.print_passwords()
+            elif (option == "5"):
                 self.exit_check("logout") 
-
-        # self.exit_check("logout") # COMMENT OUT LATER

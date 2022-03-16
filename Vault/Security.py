@@ -29,13 +29,15 @@ class Security:
         fernet = Fernet(key)
         encrypted = fernet.encrypt(encoded_password)
         return encrypted
-    
+
+
     def decrypt_password(self, encrypted_password):
         key = self.generate_key("Th1cc@$S")
         fernet = Fernet(key)
         decrypted = fernet.decrypt(encrypted_password)
         password = decrypted.decode()
         return password
+
 
     def encrypt_file(self, key, file_name):
         # Opening the file to encrypt
@@ -115,6 +117,7 @@ class Security:
         else:
             return False
 
+
     def make_entry(self, file_name, entry):
 
         self.unlock_file(file_name)
@@ -149,6 +152,92 @@ class Security:
                     count += 1
         return count
         
+    
+    def check_source(self, file_name, source):
+        with open("key.key", "rb") as f:
+            en_pwd = f.read()
+        pwd = self.decrypt_password(en_pwd)
+        key = self.generate_key(pwd)
+        data_bytes = self.decrypt_file(key, file_name)
+        data = data_bytes.decode('UTF-8')
+        data = data.splitlines()
+
+        for entry in data:
+            if (entry != "" and entry[0] == "*"):
+                divider_index = entry.find(" : ")
+                src = entry[2:divider_index]
+                if(src == source):
+                    return data.index(entry)
+        return -1
+
+
+    def edit_source(self, file_name, source, new_source):
+
+        # pwd_index = entry.find(" : ") + 3
+        index = self.check_source(file_name, source)
+        if(index == -1):
+            return -1
+        else:
+            self.unlock_file(file_name)
+            with open("Vault.txt", "r") as f:
+                contents = f.readlines()
+            
+            divider_index = contents[index].find(" : ")
+            before_src = contents[index][0:2]
+            after_src = contents[index][divider_index:]
+            new_src = new_source
+            contents[index] = before_src + new_src + after_src
+
+            with open("Vault.txt", "w") as f:
+                contents = "".join(contents)
+                f.write(contents) 
+            self.lock_file("Vault.txt")
+
+    
+    def edit_password(self, file_name, source, new_password):
+        index = self.check_source(file_name, source)
+        if(index == -1):
+            return -1
+        else:
+            self.unlock_file(file_name)
+            with open("Vault.txt", "r") as f:
+                contents = f.readlines()
+            
+            pwd_index = contents[index].find(" : ") + 3
+            before_pwd = contents[index][0:pwd_index]
+            new_pwd = new_password
+            if(index != (len(contents)-1)):
+                # old_pwd = contents[index][pwd_index: (len(contents[index])-2)]
+                # before_pwd = contents[index][0:pwd_index]
+                # after_pwd = contents[index][(pwd_index + len(new_password)):]
+                after_pwd = "\n"
+                contents[index] = before_pwd + new_pwd + after_pwd
+            else:
+                contents[index] = before_pwd + new_pwd
+
+            with open("Vault.txt", "w") as f:
+                contents = "".join(contents)
+                f.write(contents) 
+            self.lock_file("Vault.txt")
+
+    
+    def delete_entry(self, file_name, source):
+
+        index = self.check_source(file_name, source)
+        if(index == -1):
+            return -1
+        else:
+            self.unlock_file(file_name)
+            with open("Vault.txt", "r") as f:
+                contents = f.readlines()
+            
+            del contents[index]
+
+            with open("Vault.txt", "w") as f:
+                contents = "".join(contents)
+                f.write(contents) 
+            self.lock_file("Vault.txt")
+
 
     def print_data(self, file_name):
 
