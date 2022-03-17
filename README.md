@@ -1,6 +1,6 @@
 # TheVault
 
-The Vault is a console based application which encrypts and stores passwords of users in an encrypted file. 
+The Vault is a console based application which encrypts and stores passwords of users in an encrypted file. Vault allows you to make a new password entry, edit an existing entry, delete an entry, and to view your passwords.
 
 This is of course, not the safest way to store passwords of important and heavy sources, but instead, you can store passwords or hints to passwords of sources which do not need much security.
 
