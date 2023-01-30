@@ -2,6 +2,7 @@ import Security
 import Account
 from os import system, name
 from stdiomask import getpass
+import pyfiglet
 
 class Menu:
 
@@ -286,7 +287,9 @@ class Menu:
 
     def print_menu(self):
         security_obj = Security.Security()
-        print("\nWelcome to The Vault. You can type 'logout' any time you want to exit the application. \nAre you a ...")
+        ASCII_art = pyfiglet.figlet_format("Welcome to your vault", font='starwars')
+        print(ASCII_art)
+        print("\nYou can type 'logout' any time you want to exit the application. \nAre you a ...")
         print("1. New User")
         print("2. Existing User\n")
         user_type = input("Please enter an option to proceed >> ")
